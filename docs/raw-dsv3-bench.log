@@ -1,0 +1,22 @@
+=== dsv3 bench start Mon May  4 22:54:18 UTC 2026 ===
+--- slab cache=131072 MiB ---
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 196288 MiB):
+  Device 0: AMD Instinct MI300X VF, gfx942:sramecc+:xnack- (0x942), VMM: no, Wave Size: 64, VRAM: 196288 MiB
+moe-stream: cache pool size set to 131072 MiB (device=0 ssd_dir='/mnt/scratch/moe-stream-dsv3'); cache will be allocated lazily
+| model                          |       size |     params | backend    | ngl | ot                    |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | --------------------- | --------------: | -------------------: |
+| deepseek2 671B Q4_K - Medium   | 376.65 GiB |   671.03 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            pp64 |          0.80 ± 0.00 |
+| deepseek2 671B Q4_K - Medium   | 376.65 GiB |   671.03 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            tg32 |          0.57 ± 0.00 |
+
+build: unknown (0)
+--- fused cache=131072 MiB ---
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 196288 MiB):
+  Device 0: AMD Instinct MI300X VF, gfx942:sramecc+:xnack- (0x942), VMM: no, Wave Size: 64, VRAM: 196288 MiB
+moe-stream: cache pool size set to 131072 MiB (device=0 ssd_dir='/mnt/scratch/moe-stream-dsv3'); cache will be allocated lazily
+| model                          |       size |     params | backend    | ngl | ot                    |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | --------------------- | --------------: | -------------------: |
+| deepseek2 671B Q4_K - Medium   | 376.65 GiB |   671.03 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            pp64 |          0.79 ± 0.00 |
+| deepseek2 671B Q4_K - Medium   | 376.65 GiB |   671.03 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            tg32 |          0.68 ± 0.00 |
+
+build: unknown (0)
+=== dsv3 bench end Mon May  4 23:07:48 UTC 2026 ===

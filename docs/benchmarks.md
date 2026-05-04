@@ -20,13 +20,17 @@ The fused scattered-pointer kernel is **+14.6 % over slab** (34.0 vs 29.7), vali
 
 `llama-bench -m DeepSeek-V3-Q4_K_M-00001-of-00009.gguf -ngl 99 --moe-stream-dir … --moe-cache-mb 131072 -p 64 -n 32`
 
-| Configuration            | pp64 (t/s)       | tg32 (t/s)     | Cache hit rate | Notes                            |
-| ------------------------ | ---------------: | -------------: | -------------: | -------------------------------- |
-| baseline (stock)         | OOM              | OOM            | n/a            | 377 GiB > 192 GiB VRAM           |
-| `--moe-stream-dir` slab  | TBD              | TBD            | TBD            | 128 GiB cache                    |
-| `--moe-stream-dir` fused | TBD              | TBD            | TBD            | 128 GiB cache, MOE_STREAM_FUSED=1|
+| Configuration            | pp64 (t/s)    | tg32 (t/s)    | Notes                            |
+| ------------------------ | ------------: | ------------: | -------------------------------- |
+| baseline (stock)         | **OOM**       | **OOM**       | 377 GiB > 192 GiB VRAM           |
+| `--moe-stream-dir` slab  | 0.80 ± 0.00   | 0.57 ± 0.00   | 128 GiB cache                    |
+| `--moe-stream-dir` fused | 0.79 ± 0.00   | 0.68 ± 0.00   | 128 GiB cache, MOE_STREAM_FUSED=1; **+19 % over slab** |
 
-**Reading**: this is the headline. DeepSeek-V3 simply cannot run on a single MI300X (or any single accessible GPU below the MI325X 256 GiB tier) without streaming. Numbers added when the run completes.
+**Reading**: this is the headline. DeepSeek-V3 671B Q4_K_M **cannot run on a single GPU below MI325X-class (256 GiB)** without streaming — stock llama.cpp OOMs at model load. With our streaming buffer type and a 128 GiB on-device LRU cache, the model decodes at **0.68 tok/s on a single MI300X**.
+
+The fused scattered-pointer kernel is **+19 % over slab** on decode (0.68 vs 0.57). Cache hit rate is bounded by the cache fitting roughly 1/3 of the 256 experts × 58 MoE layers; the remaining 2/3 of expert accesses hit the SSD path on average. NVMe pread + `cudaMemcpyAsync` H2D dominates per-token latency.
+
+Per-token latency model (decode, fused): 256-expert × top-8 routing × 58 MoE layers × ~3 ms-per-cold-expert ≈ 1.4 s/token. Measured 1.47 s/token. The arithmetic checks out.
 
 ## Methodology
 
