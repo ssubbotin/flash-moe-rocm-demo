@@ -23,14 +23,18 @@ The fused scattered-pointer kernel is **+14.6 % over slab** (34.0 vs 29.7), vali
 | Configuration            | pp64 (t/s)    | tg32 (t/s)    | Notes                            |
 | ------------------------ | ------------: | ------------: | -------------------------------- |
 | baseline (stock)         | **OOM**       | **OOM**       | 377 GiB > 192 GiB VRAM           |
-| `--moe-stream-dir` slab  | 0.80 ± 0.00   | 0.57 ± 0.00   | 128 GiB cache                    |
-| `--moe-stream-dir` fused | 0.79 ± 0.00   | 0.68 ± 0.00   | 128 GiB cache, MOE_STREAM_FUSED=1; **+19 % over slab** |
+| `--moe-stream-dir` slab, 128 GiB cache  | 0.80 ± 0.00   | 0.57 ± 0.00   | first run, cold OS page cache    |
+| `--moe-stream-dir` fused, 128 GiB cache | 0.79 ± 0.00   | 0.68 ± 0.00   | MOE_STREAM_FUSED=1; **+19 % over slab** |
+| `--moe-stream-dir` slab,  175 GiB cache + vmtouched | 0.78 ± 0.00 | 0.67 ± 0.00 | warm pack (228 GiB resident at start, 73 GiB after dispatch) |
+| `--moe-stream-dir` fused, 175 GiB cache + vmtouched | 0.77 ± 0.00 | **0.68 ± 0.00** | gentler on page cache (86 GiB still resident after) |
 
-**Reading**: this is the headline. DeepSeek-V3 671B Q4_K_M **cannot run on a single GPU below MI325X-class (256 GiB)** without streaming — stock llama.cpp OOMs at model load. With our streaming buffer type and a 128 GiB on-device LRU cache, the model decodes at **0.68 tok/s on a single MI300X**.
+**Reading**: this is the headline. DeepSeek-V3 671B Q4_K_M **cannot run on a single GPU below MI325X-class (256 GiB)** without streaming — stock llama.cpp OOMs at model load. With our streaming buffer type and a 175 GiB on-device LRU cache, the model decodes at **0.68 tok/s on a single MI300X**.
 
-The fused scattered-pointer kernel is **+19 % over slab** on decode (0.68 vs 0.57). Cache hit rate is bounded by the cache fitting roughly 1/3 of the 256 experts × 58 MoE layers; the remaining 2/3 of expert accesses hit the SSD path on average. NVMe pread + `cudaMemcpyAsync` H2D dominates per-token latency.
+The fused scattered-pointer kernel is **+19 % over slab** on decode at the 128 GiB cache point (0.68 vs 0.57). At 175 GiB cache the slab path catches up (+17 % to 0.67) because more experts hit VRAM directly and the slab D2D becomes a smaller fraction of per-dispatch time; fused stays slightly ahead at 0.68. The per-token latency budget at 175 GiB is well within the 1.5 s/token range, dominated by NVMe pread + `cudaMemcpyAsync` H2D for the ~1/3 of experts that miss VRAM and are also evicted from page cache during dispatch.
 
-Per-token latency model (decode, fused): 256-expert × top-8 routing × 58 MoE layers × ~3 ms-per-cold-expert ≈ 1.4 s/token. Measured 1.47 s/token. The arithmetic checks out.
+Per-token latency model (decode, fused, 128 GiB): 256-expert × top-8 routing × 58 MoE layers × ~3 ms-per-cold-expert ≈ 1.4 s/token. Measured 1.47 s/token. The arithmetic checks out.
+
+**Page-cache eviction observation:** the slab path's per-dispatch K_unique × expert_bytes D2D copy uses pinned host staging that aggressively churns the OS page cache. Pre-warming the pack files via `vmtouch -t` to 62 % residency, slab dispatch then drove residency back down to 20 %. The fused path is gentler on page cache (only 14 % more evicted, ending at 24 % residency) because it reads weights direct from cache slots without a host-side bounce.
 
 ## Methodology
 

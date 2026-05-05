@@ -1,0 +1,45 @@
+=== rebench start Tue May  5 06:19:55 UTC 2026 ===
+vmtouch state at start:
+           Files: 174
+     Directories: 1
+  Resident Pages: 59966903/96187392  228G/366G  62.3%
+         Elapsed: 4.383 seconds
+host RAM:
+               total        used        free      shared  buff/cache   available
+Mem:             235           6           1           0         230         229
+
+--- slab-175g ---
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 196288 MiB):
+  Device 0: AMD Instinct MI300X VF, gfx942:sramecc+:xnack- (0x942), VMM: no, Wave Size: 64, VRAM: 196288 MiB
+moe-stream: cache pool size set to 179200 MiB (device=0 ssd_dir='/mnt/scratch/moe-stream-dsv3'); cache will be allocated lazily
+| model                          |       size |     params | backend    | ngl | ot                    |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | --------------------- | --------------: | -------------------: |
+| deepseek2 671B Q4_K - Medium   | 376.65 GiB |   671.03 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            pp64 |          0.78 ± 0.00 |
+| deepseek2 671B Q4_K - Medium   | 376.65 GiB |   671.03 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            tg32 |          0.67 ± 0.00 |
+
+build: unknown (0)
+
+vmtouch after slab-175g:
+           Files: 174
+     Directories: 1
+  Resident Pages: 19180206/96187392  73G/366G  19.9%
+         Elapsed: 2.7343 seconds
+
+--- fused-175g ---
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 196288 MiB):
+  Device 0: AMD Instinct MI300X VF, gfx942:sramecc+:xnack- (0x942), VMM: no, Wave Size: 64, VRAM: 196288 MiB
+moe-stream: cache pool size set to 179200 MiB (device=0 ssd_dir='/mnt/scratch/moe-stream-dsv3'); cache will be allocated lazily
+| model                          |       size |     params | backend    | ngl | ot                    |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | --------------------- | --------------: | -------------------: |
+| deepseek2 671B Q4_K - Medium   | 376.65 GiB |   671.03 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            pp64 |          0.77 ± 0.00 |
+| deepseek2 671B Q4_K - Medium   | 376.65 GiB |   671.03 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            tg32 |          0.68 ± 0.00 |
+
+build: unknown (0)
+
+vmtouch after fused-175g:
+           Files: 174
+     Directories: 1
+  Resident Pages: 22786201/96187392  86G/366G  23.7%
+         Elapsed: 2.871 seconds
+
+=== rebench end Tue May  5 06:33:44 UTC 2026 ===
