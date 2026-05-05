@@ -7,7 +7,7 @@ set -euo pipefail
 
 DEST="${1:-${HOME}/llamacpp-moe-cache}"
 BRANCH="${BRANCH:-feature/moe-expert-gpu-cache}"
-REMOTE_URL="${REMOTE_URL:-git@github.com:ssubbotin/flash-moe.git}"
+REMOTE_URL="${REMOTE_URL:-https://github.com/ssubbotin/llama.cpp.git}"
 ARCH="${ARCH:-gfx942}"
 
 if [[ ! -d "${DEST}/.git" ]]; then
