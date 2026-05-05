@@ -30,23 +30,32 @@ You went to sleep with Phase 4 sub-commit 3 (fused kernel) verified at +12% over
 
 ## What needs you specifically
 
-1. **Open the upstream draft PR** — body fully drafted at `flash-moe-rocm-demo/docs/upstream-pr-body.md`. One command:
-   ```bash
-   cd ~/llamacpp-moe-cache && gh pr create --repo ggml-org/llama.cpp --base master \
-     --head ssubbotin:feature/moe-expert-gpu-cache --draft \
-     --title "[RFC/WIP] ggml-cuda: GPU-resident MoE expert cache + optional SSD streaming" \
-     --body-file /home/sergey/flash-moe-rocm-demo/docs/upstream-pr-body.md
-   ```
+**Update 2026-05-05 ~08:00 CEST** — read the lablab.ai rules + llama.cpp `AGENTS.md`. Two policy findings drive the revised plan:
 
-2. **Record the demo video** — storyboard at `flash-moe-rocm-demo/docs/demo-video-storyboard.md`. ~4:30 of capture, OBS or similar. Captures needed from droplet (model load, bench output, chat completion, agent run).
+- **lablab.ai is OK with AI-assisted work** but requires disclosure (Code of Conduct: "We also disclose when reliant on any third party AI tools, such as ChatGPT or others"). README updated with the disclosure section (commit `585ed82`). Existing entries openly tag Claude / Claude Code / Codex.
+- **llama.cpp upstream is NOT OK with AI-generated PRs** (`AGENTS.md`: "predominantly AI-generated" PRs rejected; AI-written PR descriptions are immediate-closure triggers). **Private forks are explicitly exempt.** So we ship the fork branch as a public reference and DON'T open an upstream PR.
 
-3. **Submit on lablab.ai** — fields needed:
-   - Project: flash-moe-rocm-demo
-   - Repo URL: https://github.com/ssubbotin/flash-moe-rocm-demo
-   - Upstream PR URL (after step 1)
-   - Demo video URL (after step 2)
-   - License: MIT
-   - Description: 1 paragraph from README
+→ The original "open upstream PR" step is **dropped** (PR body archived to `docs/_archive-upstream-pr-body.md`). The fork URL `https://github.com/ssubbotin/llama.cpp/tree/feature/moe-expert-gpu-cache` is what we cite from the submission instead.
+
+### Remaining items needing you:
+
+1. **Record the demo video** (≤ 5 min) — storyboard at `docs/demo-video-storyboard.md`. OBS or similar. Captures needed: model load, bench output, DSV3 chat completion, agent run.
+
+2. **Cover image + slide deck** — required submission fields per lablab `delivering-your-hackathon-solution`. A title slide + 5–6 content slides matching the storyboard sections.
+
+3. **(Optional, extra prize tier) Hugging Face Space** — `flash-moe-rocm-demo` could be published as a Space in the AMD Developer Hackathon HF org. Wins the "most likes" Hugging Face Special Prize ($500 credits + 6mo Pro). Streamlit-style demo wrapping `agent-demo`.
+
+4. **Submit on lablab.ai**:
+   - Track: **AI Agents & Agentic Workflows** (best fit — we have a working agent demo + the streaming engine as the "high-performance AI app" angle)
+   - Optional secondary: **Build in Public** (post 2 technical updates tagging @lablab, @AIatAMD; we already have open-source + walkthrough)
+   - Fields:
+     - Project: `flash-moe-rocm-demo`
+     - Repo: https://github.com/ssubbotin/flash-moe-rocm-demo
+     - Llama.cpp fork (cite, don't PR): https://github.com/ssubbotin/llama.cpp/tree/feature/moe-expert-gpu-cache
+     - Demo Application Platform: any (we're a CLI/server tool, the "demo" is the recorded video + repo)
+     - License: MIT (verifiable)
+     - **AI tool tags**: `Anthropic Claude`, `Claude Code` (matches existing-entry pattern)
+     - Description: 1 paragraph from README focusing on "DeepSeek-V3 671B on a single MI300X via streaming MoE expert weights from SSD"
 
 ## Droplet state
 
