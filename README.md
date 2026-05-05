@@ -63,3 +63,15 @@ agent-demo --task "What is the size in bytes of /etc/hostname?" --base-url http:
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## AI tool disclosure
+
+Per the [lablab.ai Code of Conduct](https://lablab.ai/code-of-conduct) ("We also disclose when reliant on any third party AI tools, such as ChatGPT or others") and the [llama.cpp AGENTS.md policy](https://github.com/ggml-org/llama.cpp/blob/master/AGENTS.md):
+
+This project — including the companion `flash-moe-rocm-demo` repo and the upstream-style llama.cpp branch [`feature/moe-expert-gpu-cache`](https://github.com/ssubbotin/llama.cpp/tree/feature/moe-expert-gpu-cache) — was developed with substantial AI assistance:
+
+- **Tool**: Anthropic Claude (Claude Code CLI), used for code generation, debugging, kernel implementation, build/test orchestration on the MI300X droplet, and documentation drafting.
+- **Author direction**: Sergey Subbotin (architectural choices, plan revisions when assumptions broke against llama.cpp internals, the pivot from kernel-level intercept to buffer-type design, model and benchmark target selection, the call to use Option D vs the failed Option B).
+- **Copyright**: All new code in both repos carries `Copyright (c) 2026 Sergey Subbotin` + SPDX `MIT` headers. License-clean re-derivation: nothing was copied from `danveloper/flash-moe` (the upstream Apple Silicon Flash-MoE engine has no LICENSE file → all-rights-reserved by default). The only file consulted from prior personal MI300X work was `kernels_fused_moe.hip.h` (also Sergey-authored, MIT-headered).
+- **Upstream PR status**: **Not submitted to `ggml-org/llama.cpp`.** llama.cpp's AGENTS.md does not accept "predominantly AI-generated" PRs, and AI-written PR descriptions are explicit immediate-closure triggers. The branch lives on a personal fork (which AGENTS.md explicitly exempts) as a working reference; it is not pushed to upstream review.
+- **Competing entries with the same disclosure**: lablab.ai's existing AMD Developer Hackathon submissions visibly tag the same tools (e.g. "Hands for AI" tags Anthropic Claude / Claude Code / Codex; "CUDA→ROCm Migration Agent" tags Anthropic Claude / LangChain).
