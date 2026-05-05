@@ -36,6 +36,21 @@ Per-token latency model (decode, fused, 128 GiB): 256-expert × top-8 routing ×
 
 **Page-cache eviction observation:** the slab path's per-dispatch K_unique × expert_bytes D2D copy uses pinned host staging that aggressively churns the OS page cache. Pre-warming the pack files via `vmtouch -t` to 62 % residency, slab dispatch then drove residency back down to 20 %. The fused path is gentler on page cache (only 14 % more evicted, ending at 24 % residency) because it reads weights direct from cache slots without a host-side bounce.
 
+## Qwen3.5-397B-A17B Q4_K_M (227 GiB — does NOT fit VRAM, the same model as flash-moe's headline)
+
+`llama-bench -m Qwen3.5-397B-A17B-Q4_K_M-00001-of-00006.gguf -ngl 99 --moe-stream-dir … --moe-cache-mb N -p 64 -n 32`
+
+| Configuration                       | pp64 (t/s)   | tg32 (t/s)   | Notes                                  |
+| ----------------------------------- | -----------: | -----------: | -------------------------------------- |
+| baseline (stock)                    | **OOM**      | **OOM**      | 227 GiB > 192 GiB VRAM                |
+| stream **slab** @ 128 GiB cache     | 4.72 ± 0.00  | **5.62 ± 0.00** | wins on this model (small experts)  |
+| stream **fused** @ 128 GiB cache    | 4.80 ± 0.00  | 5.41 ± 0.00  | per-block overhead > slab D2D savings  |
+| stream **fused** @ 160 GiB cache    | 4.79 ± 0.00  | 5.49 ± 0.00  | bigger cache barely helps              |
+
+**Reading**: matches the same architectural conclusion as DSV3 (no-streaming OOMs, streaming runs at usable rates), but **slab wins over fused** here — opposite of DSV3 — because Qwen3.5-397B's per-expert is ~2.5 MB (vs DSV3's ~12 MB). Below ~5 MB per-expert, the slab D2D copy is a small fraction of per-dispatch time and the fused kernel's per-block launch + LDS staging overhead dominates. Auto-selecting between paths at init time based on `expert_bytes` is a small follow-up.
+
+**Direct comparison to flash-moe** on this exact model: we hit ~79% of flash-moe's standalone-engine baseline (5.62 vs 7.13 tg/s) and ~56% of its fully-optimised peak (vs 10.01 tg/s). See [comparison-flash-moe-vs-llamacpp.md](comparison-flash-moe-vs-llamacpp.md) for the gap analysis.
+
 ## Methodology
 
 - llama.cpp branch `feature/moe-expert-gpu-cache` at the bench commit (`d611ba5`).

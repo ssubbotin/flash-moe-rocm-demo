@@ -1,0 +1,59 @@
+=== qwen397 pack + bench start Tue May  5 07:26:56 UTC 2026 ===
+--- packing 6 shards in parallel ---
+packing /mnt/scratch/llamacpp-moe-cache/models/qwen397/Q4_K_M/Qwen3.5-397B-A17B-Q4_K_M-00001-of-00006.gguf
+packing /mnt/scratch/llamacpp-moe-cache/models/qwen397/Q4_K_M/Qwen3.5-397B-A17B-Q4_K_M-00002-of-00006.gguf
+packing /mnt/scratch/llamacpp-moe-cache/models/qwen397/Q4_K_M/Qwen3.5-397B-A17B-Q4_K_M-00003-of-00006.gguf
+packing /mnt/scratch/llamacpp-moe-cache/models/qwen397/Q4_K_M/Qwen3.5-397B-A17B-Q4_K_M-00004-of-00006.gguf
+packing /mnt/scratch/llamacpp-moe-cache/models/qwen397/Q4_K_M/Qwen3.5-397B-A17B-Q4_K_M-00005-of-00006.gguf
+packing /mnt/scratch/llamacpp-moe-cache/models/qwen397/Q4_K_M/Qwen3.5-397B-A17B-Q4_K_M-00006-of-00006.gguf
+moe-pack: done. wrote 0 files (0 bytes / 0.00 GiB) into /mnt/scratch/moe-stream-qwen397/
+moe-pack: wrote /mnt/scratch/moe-stream-qwen397//layer_59.up.bin  (from 'blk.59.ffn_up_exps.weight' E=512 expert_bytes=2359296 total=1207959552)
+moe-pack: done. wrote 34 files (44023414784 bytes / 41.00 GiB) into /mnt/scratch/moe-stream-qwen397/
+moe-pack: wrote /mnt/scratch/moe-stream-qwen397//layer_11.gate.bin  (from 'blk.11.ffn_gate_exps.weight' E=512 expert_bytes=2359296 total=1207959552)
+moe-pack: done. wrote 35 files (45499809792 bytes / 42.38 GiB) into /mnt/scratch/moe-stream-qwen397/
+moe-pack: wrote /mnt/scratch/moe-stream-qwen397//layer_36.down.bin  (from 'blk.36.ffn_down_exps.weight' E=512 expert_bytes=2883584 total=1476395008)
+moe-pack: done. wrote 37 files (48184164352 bytes / 44.88 GiB) into /mnt/scratch/moe-stream-qwen397/
+moe-pack: wrote /mnt/scratch/moe-stream-qwen397//layer_23.up.bin  (from 'blk.23.ffn_up_exps.weight' E=512 expert_bytes=2359296 total=1207959552)
+moe-pack: done. wrote 37 files (47915728896 bytes / 44.62 GiB) into /mnt/scratch/moe-stream-qwen397/
+moe-pack: wrote /mnt/scratch/moe-stream-qwen397//layer_48.gate.bin  (from 'blk.48.ffn_gate_exps.weight' E=512 expert_bytes=2359296 total=1207959552)
+moe-pack: done. wrote 37 files (47915728896 bytes / 44.62 GiB) into /mnt/scratch/moe-stream-qwen397/
+--- pack done: 180 files, 218G ---
+--- vmtouch -t (background) ---
+--- bench: baseline (no streaming, --no-warmup) — expected: OOM or warning ---
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 196288 MiB):
+  Device 0: AMD Instinct MI300X VF, gfx942:sramecc+:xnack- (0x942), VMM: no, Wave Size: 64, VRAM: 196288 MiB
+main: error: failed to load model '/mnt/scratch/llamacpp-moe-cache/models/qwen397/Q4_K_M/Qwen3.5-397B-A17B-Q4_K_M-00001-of-00006.gguf'
+| model                          |       size |     params | backend    | ngl | threads |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | --------------: | -------------------: |
+
+--- bench: slab cache=131072 MiB ---
+  Device 0: AMD Instinct MI300X VF, gfx942:sramecc+:xnack- (0x942), VMM: no, Wave Size: 64, VRAM: 196288 MiB
+moe-stream: cache pool size set to 131072 MiB (device=0 ssd_dir='/mnt/scratch/moe-stream-qwen397'); cache will be allocated lazily
+| model                          |       size |     params | backend    | ngl | ot                    |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | --------------------- | --------------: | -------------------: |
+| qwen35moe 397B.A17B Q4_K - Medium | 227.32 GiB |   396.35 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            pp64 |          4.72 ± 0.00 |
+| qwen35moe 397B.A17B Q4_K - Medium | 227.32 GiB |   396.35 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            tg32 |          5.62 ± 0.00 |
+
+build: unknown (0)
+
+--- bench: fused cache=131072 MiB ---
+  Device 0: AMD Instinct MI300X VF, gfx942:sramecc+:xnack- (0x942), VMM: no, Wave Size: 64, VRAM: 196288 MiB
+moe-stream: cache pool size set to 131072 MiB (device=0 ssd_dir='/mnt/scratch/moe-stream-qwen397'); cache will be allocated lazily
+| model                          |       size |     params | backend    | ngl | ot                    |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | --------------------- | --------------: | -------------------: |
+| qwen35moe 397B.A17B Q4_K - Medium | 227.32 GiB |   396.35 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            pp64 |          4.80 ± 0.00 |
+| qwen35moe 397B.A17B Q4_K - Medium | 227.32 GiB |   396.35 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            tg32 |          5.41 ± 0.00 |
+
+build: unknown (0)
+
+--- bench: fused cache=163840 MiB (160 GiB) ---
+  Device 0: AMD Instinct MI300X VF, gfx942:sramecc+:xnack- (0x942), VMM: no, Wave Size: 64, VRAM: 196288 MiB
+moe-stream: cache pool size set to 163840 MiB (device=0 ssd_dir='/mnt/scratch/moe-stream-qwen397'); cache will be allocated lazily
+| model                          |       size |     params | backend    | ngl | ot                    |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | --------------------- | --------------: | -------------------: |
+| qwen35moe 397B.A17B Q4_K - Medium | 227.32 GiB |   396.35 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            pp64 |          4.79 ± 0.00 |
+| qwen35moe 397B.A17B Q4_K - Medium | 227.32 GiB |   396.35 B | ROCm       |  99 | \.ffn_(up|down|gate|gate_up)_(ch|)exps=ROCm-MoE-Stream0 |            tg32 |          5.49 ± 0.00 |
+
+build: unknown (0)
+
+=== qwen397 bench end Tue May  5 07:37:25 UTC 2026 ===
